@@ -4,8 +4,9 @@ import os, time, re, subprocess, urllib
 
 TAHOE = os.path.expanduser("~/bin/tahoe")
 BASEDIR = os.path.expanduser("~/.tahoe")
+EXPECTED_SERVERS = 6
 
-def restart(basedir, k, N):
+def restart(basedir, k, N, expected_servers):
     fn = os.path.join(basedir, "tahoe.cfg")
     newfn = fn+".new"
     new = open(newfn, "w")
@@ -43,7 +44,7 @@ def restart(basedir, k, N):
         if not mo:
             continue
         count = int(mo.group(1))
-        if count < 6:
+        if count < expected_servers:
             continue
         break
 
@@ -51,7 +52,6 @@ def restart(basedir, k, N):
 
 def upload(basedir, k, N, size, name):
     size = int(size)
-    restart(basedir, k, N)
     fn = "%s--%d-of-%d" % (name, k, N)
     assert size > 8
     data = os.urandom(8) + "\x00" * (size-8)
@@ -61,7 +61,8 @@ def upload(basedir, k, N, size, name):
         print "unable to upload"
         sys.exit(1)
 
-for size,name in [(1e6,"1MB"), (10e6,"10MB"), (100e6,"100MB")]:
-    for k in range(1, 60+1):
+for k in range(1, 60+1):
+    restart(basedir, k, N, EXPECTED_SERVERS)
+    for size,name in [(1e6,"1MB"), (10e6,"10MB"), (100e6,"100MB")]:
         N = k
         upload(BASEDIR, k, N, size, name)
