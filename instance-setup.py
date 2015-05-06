@@ -35,7 +35,7 @@ sys.stdout.flush()
 
 def get_metadata(name):
     url = "http://metadata/computeMetadata/v1/instance/attributes/" + name
-    log("fetching", url)
+    log("fetching %s" % url)
     r = requests.get(url, headers={"Metadata-Flavor": "Google"})
     r.raise_for_status()
     return r.text
