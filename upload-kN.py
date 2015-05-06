@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-import os, time, re, subprocess, urllib
+import os, sys, time, re, subprocess, urllib
 
 TAHOE = os.path.expanduser("~/bin/tahoe")
 BASEDIR = os.path.expanduser("~/.tahoe")
@@ -14,7 +14,7 @@ def restart(basedir, k, N, expected_servers):
         if line.startswith("shares.needed") or line.startswith("#shares.needed"):
             line = "shares.needed = %d\n" % k
         if line.startswith("shares.happy") or line.startswith("#shares.happy"):
-            line = "shares.happy = 1\n"
+            line = "shares.happy = %d\n" % EXPECTED_SERVERS
         if line.startswith("shares.total") or line.startswith("#shares.total"):
             line = "shares.total = %d\n" % N
         new.write(line)
@@ -50,19 +50,20 @@ def restart(basedir, k, N, expected_servers):
 
     print "restarted"
 
-def upload(basedir, k, N, size, name):
+def upload(fn, size):
     size = int(size)
-    fn = "%s--%d-of-%d" % (name, k, N)
     assert size > 8
     data = os.urandom(8) + "\x00" * (size-8)
-    p = subprocess.Popen([TAHOE, "put", "-", "perf:%s" % fn], stdin=subprocess.PIPE)
+    p = subprocess.Popen([TAHOE, "put", "-", "perf:%s" % fn],
+                         stdin=subprocess.PIPE)
     p.communicate(data)
     if p.returncode != 0:
         print "unable to upload"
         sys.exit(1)
 
 for k in range(1, 60+1):
-    restart(basedir, k, N, EXPECTED_SERVERS)
-    for size,name in [(1e6,"1MB"), (10e6,"10MB"), (100e6,"100MB")]:
-        N = k
-        upload(BASEDIR, k, N, size, name)
+    N = k
+    restart(BASEDIR, k, N, EXPECTED_SERVERS)
+    for size,sizename in [(1e6,"1MB"), (10e6,"10MB"), (100e6,"100MB")]:
+        fn = "CHK-%s--%d-of-%d" % (sizename, k, N)
+        upload(fn, size)
