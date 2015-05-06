@@ -14,7 +14,7 @@ def restart(basedir, k, N, expected_servers):
         if line.startswith("shares.needed") or line.startswith("#shares.needed"):
             line = "shares.needed = %d\n" % k
         if line.startswith("shares.happy") or line.startswith("#shares.happy"):
-            line = "shares.happy = %d\n" % EXPECTED_SERVERS
+            line = "shares.happy = %d\n" % min(N,EXPECTED_SERVERS)
         if line.startswith("shares.total") or line.startswith("#shares.total"):
             line = "shares.total = %d\n" % N
         new.write(line)
