@@ -50,4 +50,12 @@ for nodename in get_metadata("tahoeperf-nodes").split(","):
         call([TAHOE, "start", nodename])
         log("started %s" % nodename)
 
+    if nodename == "client":
+        log("creating %s" % nodename)
+        call([TAHOE, "create-client", "-n", nodename, "-i", introducer_furl])
+        call([TAHOE, "start"])
+        log("started %s" % nodename)
+        log("running start-client.py")
+        call([sys.executable, "./start-client.py"])
+
 log("instance-setup.py complete")
