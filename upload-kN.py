@@ -10,11 +10,11 @@ def restart(basedir, k, N):
     newfn = fn+".new"
     new = open(newfn, "w")
     for line in open(fn,"r").readlines():
-        if line.startswith("shares.needed"):
+        if line.startswith("shares.needed") or line.startswith("#shares.needed"):
             line = "shares.needed = %d\n" % k
-        if line.startswith("shares.happy"):
+        if line.startswith("shares.happy") or line.startswith("#shares.happy"):
             line = "shares.happy = 1\n"
-        if line.startswith("shares.total"):
+        if line.startswith("shares.total") or line.startswith("#shares.total"):
             line = "shares.total = %d\n" % N
         new.write(line)
     new.close()
@@ -24,14 +24,14 @@ def restart(basedir, k, N):
     p.communicate()
     if p.returncode != 0:
         print "unable to restart tahoe"
-        os.exit(1)
+        sys.exit(1)
     # now we need to wait until all servers are connected
     timeout = 60
     while True:
         timeout -= 1
         if timeout <= 0:
             print "gave up waiting for restart"
-            os.exit(1)
+            sys.exit(1)
         time.sleep(1)
         d = urllib.urlopen("http://localhost:3456/").readlines()
         d2 = [l for l in d
@@ -59,7 +59,7 @@ def upload(basedir, k, N, size, name):
     p.communicate(data)
     if p.returncode != 0:
         print "unable to upload"
-        os.exit(1)
+        sys.exit(1)
 
 for size,name in [(1e6,"1MB"), (10e6,"10MB"), (100e6,"100MB")]:
     for k in range(1, 60+1):

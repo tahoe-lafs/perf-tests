@@ -55,6 +55,7 @@ for nodename in get_metadata("tahoeperf-nodes").split(","):
         call([TAHOE, "create-client", "-n", nodename, "-i", introducer_furl])
         call([TAHOE, "start"])
         log("started %s" % nodename)
+        call([TAHOE, "create-alias", "perf"])
         log("running start-client.py")
         call([sys.executable, expanduser("~/perf-tests/./start-client.py")])
 
