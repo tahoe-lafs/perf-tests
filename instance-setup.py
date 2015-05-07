@@ -33,14 +33,14 @@ else:
 log("")
 sys.stdout.flush()
 
-def get_metadata(name):
-    url = "http://metadata/computeMetadata/v1/instance/attributes/" + name
+def get_metadata(name, type="instance"):
+    url = "http://metadata/computeMetadata/v1/%s/attributes/%s" % (type, name)
     log("fetching %s" % url)
     r = requests.get(url, headers={"Metadata-Flavor": "Google"})
     r.raise_for_status()
     return r.text
 
-introducer_furl = get_metadata("introducer-furl")
+introducer_furl = get_metadata("introducer-furl", "project")
 
 for nodename in get_metadata("tahoeperf-nodes").split(","):
     if nodename.startswith("storage"):
