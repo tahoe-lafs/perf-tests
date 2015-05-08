@@ -1,6 +1,8 @@
 #! /usr/bin/python
 
 import os, sys, time, re, subprocess, urllib
+from gcloud import datastore
+
 
 TAHOE = os.path.expanduser("~/bin/tahoe")
 BASEDIR = os.path.expanduser("~/.tahoe")
@@ -55,15 +57,38 @@ def upload(fn, size):
     assert size > 8
     data = os.urandom(8) + "\x00" * (size-8)
     p = subprocess.Popen([TAHOE, "put", "-", "perf:%s" % fn],
-                         stdin=subprocess.PIPE)
-    p.communicate(data)
+                         stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    stdout = p.communicate(data)
     if p.returncode != 0:
         print "unable to upload"
         sys.exit(1)
+    # expect "200 OK\nFILECAP\n"
+    return stdout.splitlines()[1]
 
-for k in range(1, 60+1):
+grid_config_id = sys.argv[1]
+key = datastore.Key("UploadPerf")
+
+for k in range(1,2):
     N = k
     restart(BASEDIR, k, N, EXPECTED_SERVERS)
+    unpushed = []
     for size,sizename in [(1e6,"1MB"), (10e6,"10MB"), (100e6,"100MB")]:
         fn = "CHK-%s--%d-of-%d" % (sizename, k, N)
-        upload(fn, size)
+        start = time.time()
+        filecap = upload(fn, size)
+        elapsed = time.time() - start
+        c = datastore.Entity(key)
+        c.update({"filetype": u"CHK",
+                  "filesize": size,
+                  "k": k,
+                  "N": N,
+                  #"max_segsize": "default", # use no-such-key to mean default
+                  "filecap": filecap.decode("ascii"),
+                  "elapsed": elapsed})
+        unpushed.append(c)
+        if len(unpushed) > 5:
+            datastore.put(unpushed)
+            unpushed[:] = []
+if unpushed:
+    datastore.put(unpushed)
+    unpushed[:] = []
