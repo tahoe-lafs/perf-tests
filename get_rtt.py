@@ -5,7 +5,7 @@ from twisted.application import service
 from foolscap.api import Tub, fireEventually
 
 class SpeedTest:
-    def __init__(self, test_client_dir):
+    def __init__(self):
         f = open(os.path.expanduser("~/.tahoe/private/control.furl"), "r")
         self.control_furl = f.read().strip()
         f.close()
@@ -43,7 +43,7 @@ class SpeedTest:
         d.addCallback(_gotref)
         return d
 
-    def measure_rtt(self, res):
+    def measure_rtt(self):
         # use RIClient.get_nodeid() to measure the foolscap-level RTT
         d = self.client_rref.callRemote("measure_peer_response_time")
         def _got(res):
@@ -56,6 +56,7 @@ class SpeedTest:
             print "total-RTT: %f" % self.total_rtt
             print "average-RTT: %f" % self.average_rtt
             print "max-RTT: %f" % self.max_rtt
+            print "all-times:" % res
         d.addCallback(_got)
         return d
 
@@ -66,6 +67,5 @@ class SpeedTest:
 
 
 if __name__ == '__main__':
-    test_client_dir = sys.argv[1]
-    st = SpeedTest(test_client_dir)
+    st = SpeedTest()
     st.run()
