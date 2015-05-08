@@ -66,7 +66,7 @@ def upload(fn, size):
 
 def upload_kN(grid_config_id):
     key = datastore.Key("UploadPerf")
-    for k in range(1,2):
+    for k in range(1,60+1):
         N = k
         restart(BASEDIR, k, N, EXPECTED_SERVERS)
         unpushed = []
