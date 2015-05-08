@@ -65,33 +65,36 @@ def upload(fn, size):
     # expect "200 OK\nFILECAP\n"
     return stdout.splitlines()[1]
 
-grid_config_id = sys.argv[1]
-key = datastore.Key("UploadPerf")
+def upload_kN(grid_config_id):
+    key = datastore.Key("UploadPerf")
+    for k in range(1,2):
+        N = k
+        restart(BASEDIR, k, N, EXPECTED_SERVERS)
+        unpushed = []
+        for size,sizename in [(1e6,"1MB"), (10e6,"10MB"), (100e6,"100MB")]:
+            fn = "CHK-%s--%d-of-%d" % (sizename, k, N)
+            start = time.time()
+            filecap = upload(fn, size)
+            elapsed = time.time() - start
+            c = datastore.Entity(key)
+            c.update({
+                "grid_config_id": grid_config_id,
+                "filetype": u"CHK",
+                "filesize": size,
+                "k": k,
+                "N": N,
+                #"max_segsize": "default", # use no-such-key to mean default
+                "filecap": filecap.decode("ascii"),
+                "elapsed": elapsed,
+                })
+            unpushed.append(c)
+            if len(unpushed) > 5:
+                datastore.put(unpushed)
+                unpushed[:] = []
+    if unpushed:
+        datastore.put(unpushed)
+        unpushed[:] = []
 
-for k in range(1,2):
-    N = k
-    restart(BASEDIR, k, N, EXPECTED_SERVERS)
-    unpushed = []
-    for size,sizename in [(1e6,"1MB"), (10e6,"10MB"), (100e6,"100MB")]:
-        fn = "CHK-%s--%d-of-%d" % (sizename, k, N)
-        start = time.time()
-        filecap = upload(fn, size)
-        elapsed = time.time() - start
-        c = datastore.Entity(key)
-        c.update({
-            "grid_config_id": grid_config_id,
-            "filetype": u"CHK",
-            "filesize": size,
-            "k": k,
-            "N": N,
-            #"max_segsize": "default", # use no-such-key to mean default
-            "filecap": filecap.decode("ascii"),
-            "elapsed": elapsed,
-            })
-        unpushed.append(c)
-        if len(unpushed) > 5:
-            datastore.put(unpushed)
-            unpushed[:] = []
-if unpushed:
-    datastore.put(unpushed)
-    unpushed[:] = []
+if __name__ == '__main__':
+    grid_config_id = sys.argv[1]
+    upload_kN(grid_config_id)
