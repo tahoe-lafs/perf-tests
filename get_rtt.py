@@ -10,6 +10,7 @@ class SpeedTest:
         self.control_furl = f.read().strip()
         f.close()
         self.base_service = service.MultiService()
+        self.failed = None
 
     def run(self):
         d = fireEventually()
@@ -56,7 +57,7 @@ class SpeedTest:
             print "total-RTT: %f" % self.total_rtt
             print "average-RTT: %f" % self.average_rtt
             print "max-RTT: %f" % self.max_rtt
-            print "all-times:" % res
+            print "all-times:", res
         d.addCallback(_got)
         return d
 
