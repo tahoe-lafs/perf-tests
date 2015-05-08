@@ -50,6 +50,7 @@ class GetGridConfig:
     def got_rtt(self, rtts):
         # rtts: nodeid -> latency (in seconds)
         times = rtts.values()
+        print "avg latency:", sum(times) / len(times)
         key = datastore.Key("GridConfig")
         c = datastore.Entity(key)
         c.update({
