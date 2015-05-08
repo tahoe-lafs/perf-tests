@@ -58,7 +58,7 @@ def upload(fn, size):
     data = os.urandom(8) + "\x00" * (size-8)
     p = subprocess.Popen([TAHOE, "put", "-", "perf:%s" % fn],
                          stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    stdout = p.communicate(data)
+    stdout = p.communicate(data)[0]
     if p.returncode != 0:
         print "unable to upload"
         sys.exit(1)
