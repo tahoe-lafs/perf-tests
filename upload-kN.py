@@ -78,13 +78,16 @@ for k in range(1,2):
         filecap = upload(fn, size)
         elapsed = time.time() - start
         c = datastore.Entity(key)
-        c.update({"filetype": u"CHK",
-                  "filesize": size,
-                  "k": k,
-                  "N": N,
-                  #"max_segsize": "default", # use no-such-key to mean default
-                  "filecap": filecap.decode("ascii"),
-                  "elapsed": elapsed})
+        c.update({
+            "grid_config_id": grid_config_id,
+            "filetype": u"CHK",
+            "filesize": size,
+            "k": k,
+            "N": N,
+            #"max_segsize": "default", # use no-such-key to mean default
+            "filecap": filecap.decode("ascii"),
+            "elapsed": elapsed,
+            })
         unpushed.append(c)
         if len(unpushed) > 5:
             datastore.put(unpushed)
