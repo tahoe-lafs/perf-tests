@@ -62,8 +62,7 @@ def upload(fn, size):
     if p.returncode != 0:
         print "unable to upload"
         sys.exit(1)
-    # expect "200 OK\nFILECAP\n"
-    return stdout.splitlines()[1]
+    return stdout.strip()
 
 def upload_kN(grid_config_id):
     key = datastore.Key("UploadPerf")
