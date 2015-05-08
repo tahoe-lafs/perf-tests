@@ -11,5 +11,5 @@ c.update({
     "client_instance_type": "n1-standard-1",
     "client_version": "1.10.0",
     })
-datastore.put(c)
+datastore.put([c])
 print "configid:", c.key.id
