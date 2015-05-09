@@ -1,9 +1,9 @@
 #! /usr/bin/python
 
-import os, sys, time, re, subprocess, urllib
+import os, sys, time, subprocess
 from gcloud import datastore
 
-from rewrite_config import reconfig
+from rewrite_config import reconfig, restart_node, wait_for_connections
 
 TAHOE = os.path.expanduser("~/bin/tahoe")
 BASEDIR = os.path.expanduser("~/.tahoe")
@@ -12,36 +12,11 @@ EXPECTED_SERVERS = 6
 def restart(basedir, k, N, expected_servers):
     fn = os.path.join(basedir, "tahoe.cfg")
     reconfig(fn, "shares.needed", str(k))
-    reconfig(fn, "shares.happy", str(min(N,EXPECTED_SERVERS)))
+    reconfig(fn, "shares.happy", str(min(N,expected_servers)))
     reconfig(fn, "shares.total", str(N))
 
-    p = subprocess.Popen([TAHOE, "restart", BASEDIR])
-    p.communicate()
-    if p.returncode != 0:
-        print "unable to restart tahoe"
-        sys.exit(1)
-    # now we need to wait until all servers are connected
-    timeout = 60
-    while True:
-        timeout -= 1
-        if timeout <= 0:
-            print "gave up waiting for restart"
-            sys.exit(1)
-        time.sleep(1)
-        d = urllib.urlopen("http://localhost:3456/").readlines()
-        d2 = [l for l in d
-              if "Connected to" in l and
-              "introducer" not in l and "helper" not in l]
-        if len(d2) != 1:
-            continue
-        mo = re.search(r'<span>(\d+)</span>', d2[0])
-        if not mo:
-            continue
-        count = int(mo.group(1))
-        if count < expected_servers:
-            continue
-        break
-
+    restart_node(TAHOE, basedir)
+    wait_for_connections("http://localhost:3456/", expected_servers)
     print "restarted"
 
 def upload(fn, size):
