@@ -49,12 +49,13 @@ introducer_furl = get_metadata("introducer-furl", "project")
 
 for nodename in get_metadata("tahoeperf-nodes").split(","):
     if nodename.startswith("storage"):
-        if not exists(nodename):
-            log("creating %s" % nodename)
+        nodedir = "%s/%s" % (nodename, nodename)
+        if not exists(nodedir):
+            log("creating %s" % nodedir)
             call([TAHOE, "create-node", "-n", nodename, "-i", introducer_furl,
-                  "-p", "none", nodename])
-        call([TAHOE, "start", nodename])
-        log("started %s" % nodename)
+                  "-p", "none", nodedir])
+        call([TAHOE, "start", nodedir])
+        log("started %s" % nodedir)
 
     if nodename == "client":
         pass
