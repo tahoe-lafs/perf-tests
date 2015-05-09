@@ -57,13 +57,14 @@ for nodename in get_metadata("tahoeperf-nodes").split(","):
         log("started %s" % nodename)
 
     if nodename == "client":
-        TAHOE = expanduser("~/bin/tahoe")
-        if not exists(expanduser("~/.tahoe")):
-            log("creating %s" % nodename)
-            call([TAHOE, "create-client", "-n", nodename, "-i", introducer_furl])
-        call([TAHOE, "start"])
-        log("started %s" % nodename)
-        log("running start-client.py")
-        call([sys.executable, expanduser("~/perf-tests/./start-client.py")])
+        pass
+        ## TAHOE = expanduser("~/bin/tahoe")
+        ## if not exists(expanduser("~/.tahoe")):
+        ##     log("creating %s" % nodename)
+        ##     call([TAHOE, "create-client", "-n", nodename, "-i", introducer_furl])
+        ## call([TAHOE, "start"])
+        ## log("started %s" % nodename)
+        ## log("running start-client.py")
+        ## call([sys.executable, expanduser("~/perf-tests/./start-client.py")])
 
 log("instance-setup.py complete")

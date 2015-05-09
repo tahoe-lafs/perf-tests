@@ -38,4 +38,9 @@ if get_metadata("install-tahoe"):
     print "installing tahoe (.dpkg)"
     calls("apt-get install -y tahoe-lafs")
 
+if "client" in get_metadata("tahoeperf-nodes"):
+    calls("apt-get install -y python-pip")
+    calls("pip install -U pip")
+    calls("pip install -U virtualenv gcloud")
+
 log("instance-setup-root.py complete")
