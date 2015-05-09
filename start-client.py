@@ -43,4 +43,4 @@ def wait_for_connections():
 
 wait_for_connections()
 
-call([TAHOE, "create-alias", "perf"])
+#call([TAHOE, "create-alias", "perf"])
