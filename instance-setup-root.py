@@ -39,7 +39,7 @@ if get_metadata("install-tahoe"):
     calls("apt-get install -y tahoe-lafs")
 
 if "client" in get_metadata("tahoeperf-nodes"):
-    calls("apt-get install -y python-pip")
+    calls("apt-get install -y python-pip python-dev libssl-dev libffi-dev")
     calls("pip install -U pip")
     calls("pip install -U virtualenv gcloud")
 
