@@ -5,21 +5,24 @@ api_version: 1
 threadsafe: true
 
 handlers:
+- url: /
+  static_files: frontend/static/html/index.html
+  upload: frontend/static/html
+
 - url: /static/
   static_dir: frontend/static/
 
-- url: /
-  static_files: static/html/index.html
-  upload: static/html
-
 - url: /robots.txt
-  static_files: static/robots.txt
-  upload: static/robots.txt
+  static_files: frontend/static/robots.txt
+  upload: frontend/static/robots.txt
 
 - url: /favicon.ico
-  static_files: static/favicon.png
-  upload: static/favicon.png
+  static_files: frontend/static/icon.png
+  upload: frontend/static/icon.png
   mime_type: image/png
+
+- url: /api.*
+  script: frontend.api.app
 
 #libraries:
 #- name: webapp2
