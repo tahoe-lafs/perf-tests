@@ -44,7 +44,7 @@ if "client" in get_metadata("tahoeperf-nodes"):
     calls("pip install -U virtualenv gcloud")
 
 log("instance-setup-root.py complete")
-calls("/usr/share/google/safe_format_and_mount -m 'mkfs.ext4 -F' /dev/disk/by-id/google-storage1 /home/warner/storage1")
+call(["/usr/share/google/safe_format_and_mount", "-m", "mkfs.ext4 -F", "/dev/disk/by-id/google-storage1", "/home/warner/storage1"])
 calls("chmod -R warner:warner /home/warner/storage1")
-calls("/usr/share/google/safe_format_and_mount -m 'mkfs.ext4 -F' /dev/disk/by-id/google-storage2 /home/warner/storage2")
+call(["/usr/share/google/safe_format_and_mount", "-m", "mkfs.ext4 -F", "/dev/disk/by-id/google-storage2", "/home/warner/storage2"])
 calls("chmod -R warner:warner /home/warner/storage2")
