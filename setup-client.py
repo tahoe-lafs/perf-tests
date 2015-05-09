@@ -30,7 +30,7 @@ if not exists(expanduser("tahoe-lafs")):
     #src = expanduser("tahoe-lafs")
     calls("wget https://tahoe-lafs.org/source/tahoe-lafs/releases/allmydata-tahoe-1.10.0.zip")
     calls("unzip allmydata-tahoe-1.10.0.zip")
-    src = expanduser("allmydata-tahoe-1.10.0")
+    src = expanduser("~/allmydata-tahoe-1.10.0")
     calls("python setup.py build", cwd=src)
     os.symlink(join(src, "bin", "tahoe"), expanduser("~/bin/tahoe"))
     call([expanduser("~/bin/tahoe"), "--version"])
