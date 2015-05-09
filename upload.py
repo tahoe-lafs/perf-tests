@@ -65,4 +65,4 @@ def upload_kN(grid_config_id, trial_id):
 if __name__ == '__main__':
     grid_config_id = int(sys.argv[1])
     trial_id = int(sys.argv[2])
-    upload_kN(int(grid_config_id, trial_id))
+    upload_kN(grid_config_id, trial_id)
