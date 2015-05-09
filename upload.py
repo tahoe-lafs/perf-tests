@@ -31,7 +31,7 @@ def upload(fn, size):
         sys.exit(1)
     return stdout.strip()
 
-def upload_kN(grid_config_id):
+def upload_kN(grid_config_id, trial_id):
     key = datastore.Key("UploadPerf")
     unpushed = []
     for k in range(1,60+1):
@@ -45,6 +45,7 @@ def upload_kN(grid_config_id):
             c = datastore.Entity(key)
             c.update({
                 "grid_config_id": grid_config_id,
+                "trial_id": trial_id,
                 "filetype": u"CHK",
                 "filesize": size,
                 "k": k,
@@ -62,5 +63,6 @@ def upload_kN(grid_config_id):
         unpushed[:] = []
 
 if __name__ == '__main__':
-    grid_config_id = sys.argv[1].decode("ascii")
-    upload_kN(int(grid_config_id))
+    grid_config_id = int(sys.argv[1])
+    trial_id = int(sys.argv[2])
+    upload_kN(int(grid_config_id, trial_id))
