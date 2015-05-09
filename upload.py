@@ -3,6 +3,7 @@
 import os, sys, time, re, subprocess, urllib
 from gcloud import datastore
 
+from rewrite_config import reconfig
 
 TAHOE = os.path.expanduser("~/bin/tahoe")
 BASEDIR = os.path.expanduser("~/.tahoe")
@@ -10,18 +11,9 @@ EXPECTED_SERVERS = 6
 
 def restart(basedir, k, N, expected_servers):
     fn = os.path.join(basedir, "tahoe.cfg")
-    newfn = fn+".new"
-    new = open(newfn, "w")
-    for line in open(fn,"r").readlines():
-        if line.startswith("shares.needed") or line.startswith("#shares.needed"):
-            line = "shares.needed = %d\n" % k
-        if line.startswith("shares.happy") or line.startswith("#shares.happy"):
-            line = "shares.happy = %d\n" % min(N,EXPECTED_SERVERS)
-        if line.startswith("shares.total") or line.startswith("#shares.total"):
-            line = "shares.total = %d\n" % N
-        new.write(line)
-    new.close()
-    os.rename(newfn, fn)
+    reconfig(fn, "shares.needed", str(k))
+    reconfig(fn, "shares.happy", str(min(N,EXPECTED_SERVERS)))
+    reconfig(fn, "shares.total", str(N))
 
     p = subprocess.Popen([TAHOE, "restart", BASEDIR])
     p.communicate()

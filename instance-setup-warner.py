@@ -4,7 +4,7 @@
 # available, but not necessarily anything else.
 
 import sys
-from os.path import exists, expanduser
+from os.path import exists, expanduser, join
 from subprocess import call
 import requests
 
@@ -45,6 +45,8 @@ if False:
     log("~/bin/tahoe now ready")
 log("")
 
+from rewrite_config import reconfig
+
 introducer_furl = get_metadata("introducer-furl", "project")
 
 for nodename in get_metadata("tahoeperf-nodes").split(","):
@@ -54,6 +56,7 @@ for nodename in get_metadata("tahoeperf-nodes").split(","):
             log("creating %s" % nodedir)
             call([TAHOE, "create-node", "-n", nodename, "-i", introducer_furl,
                   "-p", "none", nodedir])
+            reconfig(join(nodedir, "tahoe.cfg"), "reserved_space", "")
         call([TAHOE, "start", nodedir])
         log("started %s" % nodedir)
 
