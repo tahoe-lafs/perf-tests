@@ -15,14 +15,11 @@ def log(s):
 def calls(s):
     return call(s.split())
 
-if exists("instance-setup.stamp"):
+if exists("instance-setup-warner.stamp"):
+    log("instance-setup-warner.stamp exists, exiting")
     sys.exit(0)
-with open("instance-setup.stamp","w") as f:
+with open("instance-setup-warner.stamp","w") as f:
     f.write("run\n")
-
-calls("apt-get update")
-calls("apt-get dist-upgrade -y")
-calls("apt-get install -y python-requests")
 
 def get_metadata(name, type="instance"):
     url = "http://metadata/computeMetadata/v1/%s/attributes/%s" % (type, name)
@@ -33,15 +30,9 @@ def get_metadata(name, type="instance"):
     r.raise_for_status()
     return r.text
 
-if get_metadata("install-tahoe"):
-    print "installing tahoe (.dpkg)"
-    calls("apt-get install -y tahoe-lafs")
+TAHOE = "/usr/bin/tahoe"
 
-TAHOE = expanduser("~/bin/tahoe")
-
-if exists(TAHOE):
-    log("~/bin/tahoe exists")
-else:
+if False:
     # download a pre-built Tahoe tree. takes 15s
     log("downloading pre-built tahoe")
     calls("gsutil cp gs://tahoeperf/tahoe-1.10.0-built.tar.bz2 ./")
@@ -53,7 +44,6 @@ else:
     log("--")
     log("~/bin/tahoe now ready")
 log("")
-sys.stdout.flush()
 
 introducer_furl = get_metadata("introducer-furl", "project")
 
@@ -67,6 +57,7 @@ for nodename in get_metadata("tahoeperf-nodes").split(","):
         log("started %s" % nodename)
 
     if nodename == "client":
+        TAHOE = expanduser("~/bin/tahoe")
         if not exists(expanduser("~/.tahoe")):
             log("creating %s" % nodename)
             call([TAHOE, "create-client", "-n", nodename, "-i", introducer_furl])
