@@ -50,7 +50,8 @@ def mount(diskname, mountpoint):
     log("mounting/formatting %s" % mountpoint)
     if first_time:
         calls("mkdir %s" % mountpoint)
-    call(["/usr/share/google/safe_format_and_mount", "-m", "mkfs.ext4 -F",
+    call(["/usr/share/google/safe_format_and_mount", "-m",
+          "mkfs.ext4 -F -m 0",
           "/dev/disk/by-id/google-%s" % diskname, mountpoint])
     calls("chown -R warner:warner %s" % mountpoint)
 
