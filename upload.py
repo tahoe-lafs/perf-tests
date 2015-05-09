@@ -96,4 +96,4 @@ def upload_kN(grid_config_id):
 
 if __name__ == '__main__':
     grid_config_id = sys.argv[1].decode("ascii")
-    upload_kN(grid_config_id)
+    upload_kN(int(grid_config_id))
