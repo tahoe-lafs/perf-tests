@@ -5,5 +5,22 @@ api_version: 1
 threadsafe: true
 
 handlers:
-- url: /.*
-  script: main.app
+- url: /static/
+  static_dir: frontend/static/
+
+- url: /
+  static_files: static/html/index.html
+  upload: static/html
+
+- url: /robots.txt
+  static_files: static/robots.txt
+  upload: static/robots.txt
+
+- url: /favicon.ico
+  static_files: static/favicon.png
+  upload: static/favicon.png
+  mime_type: image/png
+
+#libraries:
+#- name: webapp2
+#  version: "2.5.1"
