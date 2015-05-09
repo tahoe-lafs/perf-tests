@@ -52,8 +52,15 @@ class GetGridConfig:
         times = rtts.values()
         print "avg latency:", sum(times) / len(times)
         key = datastore.Key("GridConfig")
+        ids = set([en["grid_config_id"]
+                   for en in datastore.Query(kind="GridConfig",
+                                             projection=["grid_config_id"],
+                                             ).fetch()])
+        ids.add(0)
+        grid_config_id = max(ids)+1
         c = datastore.Entity(key)
         c.update({
+            "grid_config_id": grid_config_id,
             "num_server_instances": 3,
             "server_instance_types": [u"n1-standard-1"]*3,
             "num_servers": 6,
@@ -65,7 +72,7 @@ class GetGridConfig:
             "client_version": u"1.10.0",
             })
         datastore.put([c])
-        print "configid:", c.key.id
+        print "configid:", grid_config_id
 
     def tearDown(self, res):
         d = self.base_service.stopService()
