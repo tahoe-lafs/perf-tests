@@ -25,7 +25,7 @@ SIZES = {M: "1MB",
 
 SHARES = range(1, 60+1)
 def make_name(size, shares):
-    return "%s--%d-of-%d" % (SIZES[size], shares, shares)
+    return "CHK-%s--%d-of-%d" % (SIZES[size], shares, shares)
 
 def fetch(path):
     url = GATEWAY + "uri/" + path
