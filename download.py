@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-import os, sys, json, random, time, requests
+import os, sys, random, time, requests
 from gcloud import datastore
 from rewrite_config import restart_node, wait_for_connections
 
@@ -27,13 +27,17 @@ SHARES = range(1, 60+1)
 def make_name(size, shares):
     return "CHK-%s--%d-of-%d" % (SIZES[size], shares, shares)
 
-def fetch(path):
+s = requests.Session()
+def fetch(path, discard=False):
     url = GATEWAY + "uri/" + path
-    r = requests.get(url)
+    r = s.get(url, stream=discard)
     r.raise_for_status()
-    return r.text
+    if not discard:
+        return r.content
+    for d in r.iter_content(64*1024):
+        pass
 
-d = json.loads(fetch(rootcap+"?t=json"))
+d = requests.get(GATEWAY+"uri/"+rootcap+"?t=json").json()
 ntype, attrs = d
 childcaps = {} # key is (size, k)
 for size in SIZES:
@@ -56,7 +60,7 @@ for i in range(ITERATIONS):
     cap = childcaps[(size, k)]
 
     start = time.time()
-    fetch(cap)
+    fetch(cap, discard=True)
     download_time = time.time() - start
     c = datastore.Entity(key)
     c.update({
