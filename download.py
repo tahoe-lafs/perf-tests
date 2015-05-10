@@ -4,8 +4,8 @@ import os, sys, json, random, time, requests
 from gcloud import datastore
 from rewrite_config import restart_node, wait_for_connections
 
-grid_config_id = sys.argv[1]
-trial_id = sys.argv[2]
+grid_config_id = int(sys.argv[1])
+trial_id = int(sys.argv[2])
 
 TAHOE = os.path.expanduser("~/bin/tahoe")
 BASEDIR = os.path.expanduser("~/.tahoe")
@@ -64,6 +64,8 @@ for i in range(ITERATIONS):
         "trial_id": trial_id,
         "filetype": u"CHK",
         "filesize": size,
+        "offset": 0,
+        "readsize": size,
         "k": k,
         "N": N,
         #"max_segsize": "default", # use no-such-key to mean default
