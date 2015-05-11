@@ -24,7 +24,7 @@ var chartOptions = {
 var mode = "time";
 
 function reload() {
-    $.getJSON("/api/downloads?trial_id=2", function(data) {
+    $.getJSON("/api/downloads?trial_id=3", function(data) {
         chartOptions.series = [{name: "1MB", data: []},
                                {name: "10MB", data: []},
                                {name: "100MB", data: []}];
