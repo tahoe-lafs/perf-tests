@@ -129,4 +129,4 @@ for i in range(ITERATIONS):
         "download_time": download_time,
         })
     datastore.put([c])
-    print "total_download", size, SIZES[size], k, download_time
+    print "download", SIZES[size], k, readsize, download_time
