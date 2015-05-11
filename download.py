@@ -15,7 +15,7 @@ GATEWAY = "http://localhost:3456/"
 restart_node(TAHOE, BASEDIR)
 wait_for_connections(GATEWAY, EXPECTED_SERVERS)
 print "restarted"
-tahoe_version_string = subprocess.check_output([TAHOE, "--version"]).splitlines()[0]
+tahoe_version_string = subprocess.check_output([TAHOE, "--version"]).splitlines()[0].decode("ascii")
 mo = re.search(r'(\S+):\s(\S+)\s\[(\S+):\s(\S+)\]', tahoe_version_string)
 tahoe_appname, tahoe_version, tahoe_branch, tahoe_git_hash = mo.groups()
 
