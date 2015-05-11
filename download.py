@@ -26,6 +26,7 @@ else:
         tahoe_version = mo.groups(1)
         tahoe_branch = None
         tahoe_git_hash = None
+assert tahoe_version, (tahoe_version_string,)
 
 
 rootcap = "URI:DIR2:wnjcvliaektnjll7cqsly7fdvm:zdusnqxtf6iwvy2q5ps7irj7vplzueqcq2v2todred6b6v5r2pcq"
