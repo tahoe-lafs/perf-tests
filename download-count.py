@@ -6,7 +6,11 @@ trial_id = int(sys.argv[1])
 q = datastore.Query(kind="DownloadPerf")
 q.add_filter("trial_id", "=", trial_id)
 count = len(list(q.fetch()))
-print "%d records in DownloadPerf trial #%d" % (count, trial_id)
+print "DownloadPerf trial #%d:" % trial_id
+print " %d records" % count
 dt = list(datastore.Query(kind="DownloadTrial", filters=[("trial_id","=",trial_id)]).fetch())[0]
-print "git_hash: %s" % dt["perf-test-git-hash"]
-print "notes: %s" % dt["notes"]
+print " notes: %s" % dt["notes"]
+h = dt.get("perf_test_git_hash")
+if not h:
+    h = dt.get("perf-test-git-hash")
+print " git_hash: %s" % h
