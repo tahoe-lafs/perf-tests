@@ -21,7 +21,7 @@ var chartOptions = {
     series: [{}]
     };
 
-var mode = "speed";
+var mode = "time";
 
 function reload() {
     $.getJSON("/api/downloads?trial_id=2", function(data) {
