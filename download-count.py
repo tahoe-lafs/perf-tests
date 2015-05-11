@@ -13,4 +13,6 @@ print " notes: %s" % dt["notes"]
 h = dt.get("perf_test_git_hash")
 if not h:
     h = dt.get("perf-test-git-hash")
-print " git_hash: %s" % h
+print " perf_test_git_hash: %s" % h
+print " client_tahoe_version:", dt.get("client_tahoe_version")
+print " client_tahoe_git_hash:", dt.get("client_tahoe_git_hash")
