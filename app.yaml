@@ -6,7 +6,7 @@ threadsafe: true
 
 handlers:
 
-- url: /api
+- url: /api.*
   script: frontend.api.app
 
 - url: /
@@ -19,4 +19,6 @@ handlers:
 
 libraries:
 - name: webapp2
-  version: "2.5.1"
+  version: "2.5.2"
+- name: webob
+  version: "1.2.3"
