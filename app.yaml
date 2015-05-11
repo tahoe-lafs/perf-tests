@@ -6,20 +6,16 @@ threadsafe: true
 
 handlers:
 
-- url: /api$
+- url: /api
   script: frontend.api.app
 
-- url: /$
+- url: /
   static_files: frontend/static/index.html
   upload: frontend/static/index.html
 
-- url: /favicon.ico
-  static_files: frontend/static/icon.png
-  upload: frontend/static/icon.png
-  mime_type: image/png
-
 - url: /
   static_dir: frontend/static/
+
 
 libraries:
 - name: webapp2
