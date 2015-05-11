@@ -1,6 +1,7 @@
 #! /usr/bin/python
 
 import os, sys, random, time, requests
+from subprocess import call
 from gcloud import datastore
 from rewrite_config import restart_node, wait_for_connections
 
@@ -57,10 +58,11 @@ ids = set([en["trial_id"]
                                      ).fetch()])
 ids.add(0)
 trial_id = max(ids)+1
-
+git_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode("ascii")
 dt = datastore.Entity(datastore.Key("DownloadTrial"))
 dt.update({"trial_id": trial_id,
-           "notes": notes})
+           "notes": notes,
+           "perf-test-git-hash": git_hash})
 datastore.put([dt])
 
 key = datastore.Key("DownloadPerf")
