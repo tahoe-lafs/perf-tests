@@ -42,15 +42,18 @@ def make_name(size, shares):
     return "CHK-%s--%d-of-%d" % (SIZES[size], shares, shares)
 
 s = requests.Session()
-def fetch(path, discard=False):
+def fetch(path, offset=None, readsize=None, discard=False):
     url = GATEWAY + "uri/" + path
+    headers = {}
+    if offset is not None and readsize is not None:
+        headers["Range"] = "bytes=%d-%d" % (offset, offset+readsize-1)
     if discard:
-        r = s.get(url, stream=True)
+        r = s.get(url, headers=headers, stream=True)
         r.raise_for_status()
         for d in r.iter_content(64*1024):
             pass
     else:
-        r = s.get(url)
+        r = s.get(url, headers=headers)
         r.raise_for_status()
         return r.content
 
@@ -86,16 +89,30 @@ datastore.put([dt])
 
 key = datastore.Key("DownloadPerf")
 
+mode = "partial"
+
 ITERATIONS = 10*M
 for i in range(ITERATIONS):
-    size = random.choice(SIZES.keys())
-    k = random.choice(SHARES)
-    N = k
+    if mode == "vs-k":
+        size = random.choice(SIZES.keys())
+        k = random.choice(SHARES)
+        N = k
+        readsize = None
+        offset = None
+    elif mode == "partial":
+        size = random.choice([M, 10*M])
+        k = random.choice([1,3,6,30,60])
+        N = k
+        readsize = random.randint(0, size) # includes endpoints
+        offset = random.randint(0, size-readsize)
+    else:
+        raise ValueError("bad mode '%s'" % mode)
+
     name = make_name(size, k)
     cap = childcaps[(size, k)]
 
     start = time.time()
-    fetch(cap, discard=True)
+    fetch(cap, offset=offset, readsize=readsize, discard=True)
     download_time = time.time() - start
     c = datastore.Entity(key)
     c.update({
@@ -103,8 +120,8 @@ for i in range(ITERATIONS):
         "trial_id": trial_id,
         "filetype": u"CHK",
         "filesize": size,
-        "offset": 0,
-        "readsize": size,
+        "offset": 0 if offset is None else offset,
+        "readsize": size if readsize is None else readsize,
         "k": k,
         "N": N,
         #"max_segsize": "default", # use no-such-key to mean default
