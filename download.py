@@ -61,7 +61,7 @@ git_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode(
 dt = datastore.Entity(datastore.Key("DownloadTrial"))
 dt.update({"trial_id": trial_id,
            "notes": notes,
-           "perf-test-git-hash": git_hash})
+           "perf_test_git_hash": git_hash})
 datastore.put([dt])
 
 key = datastore.Key("DownloadPerf")
