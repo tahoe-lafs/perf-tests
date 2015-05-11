@@ -63,7 +63,7 @@ class DownloadTrialData(webapp2.RequestHandler):
         trial_data = DownloadTrial.query(DownloadTrial.trial_id == trial_id).get()
         if not trial_data:
             return {"error": "no DownloadTrial for trial_id=%d" % trial_id}
-        perfs = [p.to_dict()
+        perfs = [(p.k, p.filesize) #p.to_dict()
                  for p in DownloadPerf.query(DownloadPerf.trial_id == trial_id).fetch()]
         return {"trial_data": trial_data.to_dict(),
                 "perfs": perfs}
