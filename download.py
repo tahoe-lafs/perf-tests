@@ -1,7 +1,6 @@
 #! /usr/bin/python
 
-import os, sys, random, time, requests
-from subprocess import call
+import os, sys, random, time, requests, subprocess
 from gcloud import datastore
 from rewrite_config import restart_node, wait_for_connections
 
