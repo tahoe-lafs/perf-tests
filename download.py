@@ -5,7 +5,7 @@ from gcloud import datastore
 from rewrite_config import restart_node, wait_for_connections
 
 grid_config_id = int(sys.argv[1])
-trial_id = int(sys.argv[2])
+notes = sys.argv[2].decode("ascii")
 
 TAHOE = os.path.expanduser("~/bin/tahoe")
 BASEDIR = os.path.expanduser("~/.tahoe")
@@ -30,12 +30,15 @@ def make_name(size, shares):
 s = requests.Session()
 def fetch(path, discard=False):
     url = GATEWAY + "uri/" + path
-    r = s.get(url, stream=discard)
-    r.raise_for_status()
-    if not discard:
+    if discard:
+        r = s.get(url, stream=True)
+        r.raise_for_status()
+        for d in r.iter_content(64*1024):
+            pass
+    else:
+        r = s.get(url)
+        r.raise_for_status()
         return r.content
-    for d in r.iter_content(64*1024):
-        pass
 
 d = requests.get(GATEWAY+"uri/"+rootcap+"?t=json").json()
 ntype, attrs = d
@@ -47,6 +50,18 @@ for size in SIZES:
         childcaps[(size,k)] = str(cap)
 
 #print childcaps
+
+ids = set([en["trial_id"]
+           for en in datastore.Query(kind="DownloadTrial",
+                                     projection=["trial_id"],
+                                     ).fetch()])
+ids.add(0)
+trial_id = max(ids)+1
+
+dt = datastore.Entity(datastore.Key("DownloadTrial"))
+dt.update({"trial_id": trial_id,
+           "notes": notes})
+datastore.put([dt])
 
 key = datastore.Key("DownloadPerf")
 unpushed = []
