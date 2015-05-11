@@ -20,7 +20,7 @@ mo = re.search(r'(\S+):\s(\S+)\s\[(\S+):\s(\S+)\]', tahoe_version_string)
 if mo:
     tahoe_appname, tahoe_version, tahoe_branch, tahoe_git_hash = mo.groups()
 else:
-    mo = re.search(r'allmydata-tahoe: ([\d\.]+),', tahoe_version_string)
+    mo = re.search(r'allmydata-tahoe: ([\d\.]+)', tahoe_version_string)
     if mo:
         tahoe_appname = u"allmydata-tahoe"
         tahoe_version = mo.group(1)
