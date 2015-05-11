@@ -23,7 +23,7 @@ else:
     mo = re.search(r'allmydata-tahoe: ([\d\.]+),', tahoe_version_string)
     if mo:
         tahoe_appname = u"allmydata-tahoe"
-        tahoe_version = mo.groups(1)
+        tahoe_version = mo.group(1)
         tahoe_branch = None
         tahoe_git_hash = None
 assert tahoe_version, (tahoe_version_string,)
