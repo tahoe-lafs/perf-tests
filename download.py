@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-import os, sys, random, time, requests, subprocess
+import os, sys, re, random, time, requests, subprocess
 from gcloud import datastore
 from rewrite_config import restart_node, wait_for_connections
 
@@ -15,6 +15,10 @@ GATEWAY = "http://localhost:3456/"
 restart_node(TAHOE, BASEDIR)
 wait_for_connections(GATEWAY, EXPECTED_SERVERS)
 print "restarted"
+tahoe_version_string = subprocess.check_output([TAHOE, "--version"]).splitlines()[0]
+mo = re.search(r'(\S+):\s(\S+)\s\[(\S+):\s(\S+)\]', tahoe_version_string)
+tahoe_appname, tahoe_version, tahoe_branch, tahoe_git_hash = mo.groups()
+
 
 rootcap = "URI:DIR2:wnjcvliaektnjll7cqsly7fdvm:zdusnqxtf6iwvy2q5ps7irj7vplzueqcq2v2todred6b6v5r2pcq"
 M = 1000*1000
@@ -57,11 +61,17 @@ ids = set([en["trial_id"]
                                      ).fetch()])
 ids.add(0)
 trial_id = max(ids)+1
-git_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode("ascii")
+perf_test_git_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode("ascii")
+
 dt = datastore.Entity(datastore.Key("DownloadTrial"))
 dt.update({"trial_id": trial_id,
            "notes": notes,
-           "perf_test_git_hash": git_hash})
+           "perf_test_git_hash": perf_test_git_hash,
+           "client_tahoe_appname": tahoe_appname,
+           "client_tahoe_version": tahoe_version,
+           "client_tahoe_branch": tahoe_branch,
+           "client_tahoe_git_hash": tahoe_git_hash,
+           })
 datastore.put([dt])
 
 key = datastore.Key("DownloadPerf")
