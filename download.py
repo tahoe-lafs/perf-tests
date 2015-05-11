@@ -17,7 +17,15 @@ wait_for_connections(GATEWAY, EXPECTED_SERVERS)
 print "restarted"
 tahoe_version_string = subprocess.check_output([TAHOE, "--version"]).splitlines()[0].decode("ascii")
 mo = re.search(r'(\S+):\s(\S+)\s\[(\S+):\s(\S+)\]', tahoe_version_string)
-tahoe_appname, tahoe_version, tahoe_branch, tahoe_git_hash = mo.groups()
+if mo:
+    tahoe_appname, tahoe_version, tahoe_branch, tahoe_git_hash = mo.groups()
+else:
+    mo = re.search(r'allmydata-tahoe: ([\d\.]+),', tahoe_version)
+    if mo:
+        tahoe_appname = u"allmydata-tahoe"
+        tahoe_version = mo.groups(1)
+        tahoe_branch = None
+        tahoe_git_hash = None
 
 
 rootcap = "URI:DIR2:wnjcvliaektnjll7cqsly7fdvm:zdusnqxtf6iwvy2q5ps7irj7vplzueqcq2v2todred6b6v5r2pcq"
@@ -75,7 +83,6 @@ dt.update({"trial_id": trial_id,
 datastore.put([dt])
 
 key = datastore.Key("DownloadPerf")
-unpushed = []
 
 ITERATIONS = 10*M
 for i in range(ITERATIONS):
@@ -102,12 +109,5 @@ for i in range(ITERATIONS):
         "filecap": cap.decode("ascii"),
         "download_time": download_time,
         })
-    unpushed.append(c)
-    if len(unpushed) > 5:
-        datastore.put(unpushed)
-        unpushed[:] = []
+    datastore.put([c])
     print "total_download", size, SIZES[size], k, download_time
-
-if unpushed:
-    datastore.put(unpushed)
-    unpushed[:] = []
