@@ -80,10 +80,71 @@ class TestModel(ndb.Model):
     foo = ndb.IntegerProperty()
 
 class Test(webapp2.RequestHandler):
+    def log(self, msg):
+        print msg
+        self.response.write(msg+"\n")
+
+    def do_import(self, data, klass, old_plural_names=[]):
+        self.log("%s: %d old records, %d new" % (klass.__name__,
+                                                 klass.query().count(),
+                                                 len(data)))
+        total = 0
+        q = klass.query()
+        if False:
+            offset = 0
+            while True:
+                keys = q.fetch(500, keys_only=True, offset=offset)
+                if not keys:
+                    break
+                offset += 500
+                total += len(keys)
+                ndb.delete_multi(keys)
+        else:
+            keys, next_cursor, more = klass.query().fetch_page(500,
+                                                               keys_only=True)
+            ndb.delete_multi(keys)
+
+        self.log(" deleted %d records" % total)
+        if not self.request.get("discard", None):
+            for start in range(0, len(data), 50):
+                entities = []
+                for d in data[start:start+50]:
+                    for name in old_plural_names:
+                        names = name+"s"
+                        if names in d:
+                            d[name] = d[names][0]
+                            del d[names]
+                    for name in d:
+                        if isinstance(getattr(klass,name), ndb.IntegerProperty):
+                            d[name] = int(d[name])
+                    e = klass(parent=ndb.Key("Parent", "?"))
+                    e.populate(**d)
+                    entities.append(e)
+                ndb.put_multi(entities)
+                entities[:] = []
+            self.log(" populated %d records" % len(data))
+        else:
+            self.log(" discarded")
+        self.log(" now have %d records" % klass.query().count())
+
     def get(self):
+        import os, json
+        self.response.headers["Content-Type"] = "text/plain"
+        self.response.write(os.getcwd()+"\n")
+        data = json.load(open("all-data.json", "rb"))
+        self.response.write(str(data.keys())+"\n")
+        self.do_import(data["GridConfig"], GridConfig,
+                       ["server_version", "server_instance_type"])
+        self.do_import(data["UploadPerf"], UploadPerf)
+        self.do_import(data["DownloadTrial"], DownloadTrial)
+        self.do_import(data["DownloadPerf"], DownloadPerf)
+        self.response.write("done\n")
+
+    def OFFget(self):
         #print "in txn", ndb.in_transaction()
         t = TestModel(foo=12)
         t.put()
+        print "len(TestModel):", TestModel.query().count()
         rows = TestModel.query().fetch()
         print "len(TestModel):", len(rows)
         t1 = rows[0]
