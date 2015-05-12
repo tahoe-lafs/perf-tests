@@ -91,7 +91,9 @@ key = datastore.Key("DownloadPerf")
 
 mode = "partial"
 
-ITERATIONS = 10*M
+last_pushed = 0
+unpushed = []
+ITERATIONS = 5000
 for i in range(ITERATIONS):
     if mode == "vs-k":
         size = random.choice(SIZES.keys())
@@ -128,5 +130,10 @@ for i in range(ITERATIONS):
         "filecap": cap.decode("ascii"),
         "download_time": download_time,
         })
-    datastore.put([c])
+    unpushed.append(c)
+    now = time.time()
+    if now - last_pushed > 10:
+        datastore.put(unpushed)
+        unpushed[:] = []
+        last_pushed = now
     print "download", SIZES[size], k, readsize, download_time
