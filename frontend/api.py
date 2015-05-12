@@ -99,10 +99,15 @@ class Test(webapp2.RequestHandler):
                 offset += 500
                 total += len(keys)
                 ndb.delete_multi(keys)
-        else:
+        elif False:
             keys, next_cursor, more = klass.query().fetch_page(500,
                                                                keys_only=True)
             ndb.delete_multi(keys)
+        else:
+            #ndb.delete(klass.all(keys_only=True))
+            q = klass.query()
+            q.keys_only()
+            ndb.delete_multi(q)
 
         self.log(" deleted %d records" % total)
         if not self.request.get("discard", None):
@@ -155,5 +160,5 @@ class Test(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ("/api", MainPage),
     ("/api/downloads", DownloadTrialData),
-    ("/api/test", Test),
+    #("/api/test", Test),
 ], debug=True)
