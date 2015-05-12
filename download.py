@@ -135,7 +135,7 @@ for i in range(ITERATIONS):
     if now - last_pushed > 30:
         try:
             datastore.put(unpushed)
-            print " pushed", len(unpushed)
+            print " pushed", len(unpushed), "now at #", i
             unpushed[:] = []
             last_pushed = now
         except exceptions.GCloudError:
