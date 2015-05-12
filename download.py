@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 import os, sys, re, random, time, requests, subprocess
-from gcloud import datastore
+from gcloud import datastore, exceptions
 from rewrite_config import restart_node, wait_for_connections
 
 grid_config_id = int(sys.argv[1])
@@ -132,8 +132,12 @@ for i in range(ITERATIONS):
         })
     unpushed.append(c)
     now = time.time()
-    if now - last_pushed > 10:
-        datastore.put(unpushed)
-        unpushed[:] = []
-        last_pushed = now
+    if now - last_pushed > 30:
+        try:
+            datastore.put(unpushed)
+            print " pushed", len(unpushed)
+            unpushed[:] = []
+            last_pushed = now
+        except exceptions.GCloudError:
+            print " push error, will retry"
     print "download", SIZES[size], k, readsize, download_time
