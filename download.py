@@ -89,7 +89,7 @@ datastore.put([dt])
 
 key = datastore.Key("DownloadPerf")
 
-mode = "partial"
+mode = "vs-k"
 
 last_pushed = 0
 unpushed = []
