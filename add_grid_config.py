@@ -62,9 +62,9 @@ class GetGridConfig:
         c.update({
             "grid_config_id": grid_config_id,
             "num_server_instances": 3,
-            "server_instance_type": u"n1-standard-1",
+            "server_instance_type": u"n1-standard-4",
             "num_servers": 6,
-            "server_disk": u"2GB-pd-standard",
+            "server_disk": u"200GB-pd-standard",
             "server_version": u"1.10.0",
             "server_latencies": times,
             "avg_server_latency": sum(times) / len(times),
