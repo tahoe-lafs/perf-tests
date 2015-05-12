@@ -31,10 +31,10 @@ class DownloadTrial(ndb.Model):
     trial_id = ndb.IntegerProperty()
     perf_test_git_hash = ndb.StringProperty()
     notes = ndb.StringProperty()
-    tahoe_appname = ndb.StringProperty()
-    tahoe_version = ndb.StringProperty()
-    tahoe_branch = ndb.StringProperty()
-    tahoe_git_hash = ndb.StringProperty()
+    client_tahoe_appname = ndb.StringProperty()
+    client_tahoe_version = ndb.StringProperty()
+    client_tahoe_branch = ndb.StringProperty()
+    client_tahoe_git_hash = ndb.StringProperty()
 
 class DownloadPerf(ndb.Model):
     grid_config_id = ndb.IntegerProperty()
