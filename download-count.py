@@ -5,6 +5,7 @@ trial_id = int(sys.argv[1])
 
 q = datastore.Query(kind="DownloadPerf")
 q.add_filter("trial_id", "=", trial_id)
+q.keys_only()
 count = len(list(q.fetch()))
 print "DownloadPerf trial #%d:" % trial_id
 print " %d records" % count
