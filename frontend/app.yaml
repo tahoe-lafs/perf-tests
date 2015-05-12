@@ -8,14 +8,14 @@ default_expiration: "5s"
 handlers:
 
 - url: /api.*
-  script: frontend.api.app
+  script: api.app
 
 - url: /
-  static_files: frontend/static/index.html
-  upload: frontend/static/index.html
+  static_files: static/index.html
+  upload: static/index.html
 
 - url: /
-  static_dir: frontend/static/
+  static_dir: static/
 
 
 libraries:

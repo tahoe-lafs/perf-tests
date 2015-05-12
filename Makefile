@@ -1,5 +1,5 @@
 deploy:
-	appcfg.py update .
+	appcfg.py update frontend
 
 bounce-introducer:
 	ssh tahoe-lafs.org "~/tahoeperf-google/ve/bin/tahoe restart ~/tahoeperf-google/introducer"
