@@ -22,12 +22,33 @@ var chartOptions = {
     };
 
 var mode = "time";
+var trial = 3;
 
 function reload() {
-    $.getJSON("/api/downloads?trial_id=3", function(data) {
-        chartOptions.series = [{name: "1MB", data: []},
-                               {name: "10MB", data: []},
-                               {name: "100MB", data: []}];
+    var url = "/api/downloads?trial_id=3";
+    if (trial == 4)
+        url = "/api/downloads?trial_id=4";
+    $.getJSON(url, function(data) {
+        if (trial == 3) {
+            chartOptions.xAxis.title.text = "k";
+            chartOptions.series = [{name: "1MB", data: []},
+                                   {name: "10MB", data: []},
+                                   {name: "100MB", data: []}
+                                  ];
+        } else {
+            chartOptions.xAxis.title.text = "read size";
+            chartOptions.series = [{name: "1MB k=1", data: []},
+                                   {name: "1MB k=3", data: []},
+                                   {name: "1MB k=6", data: []},
+                                   {name: "1MB k=30", data: []},
+                                   {name: "1MB k=60", data: []},
+                                   {name: "10MB k=1", data: []},
+                                   {name: "10MB k=3", data: []},
+                                   {name: "10MB k=6", data: []},
+                                   {name: "10MB k=30", data: []},
+                                   {name: "10MB k=60", data: []}
+                                  ];
+        }
         if (mode == "speed") {
             chartOptions.title = "Download Speed";
             chartOptions.yAxis.title.text = "bytes per second";
@@ -45,12 +66,32 @@ function reload() {
                 value = p.filesize / p.download_time;
             else
                 value = p.download_time;
-            if (p.filesize == 1*MB)
-                s[0].data.push([p.k, value]);
-            if (p.filesize == 10*MB)
-                s[1].data.push([p.k, value]);
-            if (p.filesize == 100*MB)
-                s[2].data.push([p.k, value]);
+            var x, pushto;
+            if (trial == 3) {
+                x = p.k;
+                if (p.filesize == 1*MB)
+                    pushto = 0;
+                if (p.filesize == 10*MB)
+                    pushto = 1;
+                if (p.filesize == 100*MB)
+                    pushto = 2;
+                s[pushto].data.push([x, value]);
+            } else {
+                x = p.readsize;
+                if (p.k == 1)
+                    pushto = 0;
+                if (p.k == 3)
+                    pushto = 1;
+                if (p.k == 6)
+                    pushto = 2;
+                if (p.k == 30)
+                    pushto = 3;
+                if (p.k == 60)
+                    pushto = 4;
+                if (p.filesize == 10*MB)
+                    pushto += 5;
+                s[pushto].data.push([x, value]);
+            }
         });
         var chart = new Highcharts.Chart(chartOptions);
     });
@@ -64,6 +105,15 @@ $(function () {
     });
     $("#mode-speed").on("click", function() {
         mode = "speed";
+        reload();
+    });
+
+    $("#trial-3").on("click", function() {
+        trial = 3;
+        reload();
+    });
+    $("#trial-4").on("click", function() {
+        trial = 4;
         reload();
     });
 });
