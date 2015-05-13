@@ -10,7 +10,8 @@ parser.add_argument("-g", "--grid-config", type=int, required=True,
 parser.add_argument("--notes")
 parser.add_argument("--max-time", type=int)
 parser.add_argument("--max-iterations", type=int, default=5000)
-parser.add_argument("mode", choices=["k60", "k6", "partial"])
+parser.add_argument("mode", choices=["k60", "k6",
+                                     "partial-banding", "partial-100MB"])
 args = parser.parse_args()
 
 grid_config_id = args.grid_config
@@ -106,9 +107,12 @@ if mode == "k60":
 elif mode == "k6":
     values_of_filesize = SIZES.keys()
     values_of_k = range(1,6+1)
-elif mode == "partial":
-    values_of_filesize = [M, 10*M]
+elif mode == "partial-banding":
+    values_of_filesize = [M]
     values_of_k = range(1,6+1) + [30,60]
+elif mode == "partial-100MB":
+    values_of_filesize = [100*M]
+    values_of_k = [1,3,6]
 else:
     assert "bad mode", mode
 
