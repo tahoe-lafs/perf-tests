@@ -1,11 +1,21 @@
 #! /usr/bin/python
 
-import os, sys, re, random, time, requests, subprocess, socket
+import os, sys, re, random, time, requests, subprocess, socket, argparse
 from gcloud import datastore, exceptions
 from rewrite_config import restart_node, wait_for_connections
 
-grid_config_id = int(sys.argv[1])
-notes = sys.argv[2].decode("ascii")
+parser = argparse.ArgumentParser(description="download performance test")
+parser.add_argument("-g", "--grid-config", type=int, required=True,
+                    help="grid config id")
+parser.add_argument("--notes")
+parser.add_argument("--max-time", type=int)
+parser.add_argument("--max-iterations", type=int, default=5000)
+parser.add_argument("mode", choices=["k60", "k6", "partial"])
+args = parser.parse_args()
+
+grid_config_id = args.grid_config
+notes = args.notes.decode("ascii")
+mode = args.mode
 
 TAHOE = os.path.expanduser("~/bin/tahoe")
 BASEDIR = os.path.expanduser("~/.tahoe")
@@ -86,46 +96,54 @@ dt.update({"trial_id": trial_id,
            "client_tahoe_git_hash": tahoe_git_hash,
            })
 datastore.put([dt])
-print "Starting trial id", trial_id
+print "-- Starting trial id %d, mode=%s, gridconfig=%d" % (trial_id, mode, grid_config_id)
 
 key = datastore.Key("DownloadPerf")
 
-mode = "vs-k"
+if mode == "k60":
+    values_of_filesize = SIZES.keys()
+    values_of_k = SHARES
+elif mode == "k6":
+    values_of_filesize = SIZES.keys()
+    values_of_k = range(1,6+1)
+elif mode == "partial":
+    values_of_filesize = [M, 10*M]
+    values_of_k = range(1,6+1) + [30,60]
+else:
+    assert "bad mode", mode
 
+
+trial_start = time.time()
 last_pushed = 0
 unpushed = []
-ITERATIONS = 5000
-for i in range(ITERATIONS):
-    if mode == "vs-k":
-        size = random.choice(SIZES.keys())
-        k = random.choice(SHARES)
-        N = k
-        readsize = None
-        offset = None
-    elif mode == "partial":
-        size = random.choice([M, 10*M])
-        k = random.choice([1,3,6,30,60])
-        N = k
-        readsize = random.randint(0, size) # includes endpoints
-        offset = random.randint(0, size-readsize)
-    else:
-        raise ValueError("bad mode '%s'" % mode)
 
-    name = make_name(size, k)
-    cap = childcaps[(size, k)]
+for i in range(args.max_iterations):
+    filesize = random.choice(values_of_filesize)
+    k = random.choice(values_of_k)
+    N = k
+    name = make_name(filesize, k)
+    cap = childcaps[(filesize, k)]
+
+    readsize = None
+    offset = None
+    if mode == "partial":
+        readsize = random.randint(0, filesize) # includes endpoints
+        offset = random.randint(0, filesize-readsize)
 
     start = time.time()
     fetch(cap, offset=offset, readsize=readsize, discard=True)
     download_time = time.time() - start
-    print "download", SIZES[size], k, readsize, download_time
+    print "download #%d: filesize=%s k=%d readsize=%s time=%.2f" % \
+          (i, SIZES[filesize], k, readsize, download_time)
+
     c = datastore.Entity(key)
     c.update({
         "grid_config_id": grid_config_id,
         "trial_id": trial_id,
         "filetype": u"CHK",
-        "filesize": size,
+        "filesize": filesize,
         "offset": 0 if offset is None else offset,
-        "readsize": size if readsize is None else readsize,
+        "readsize": filesize if readsize is None else readsize,
         "k": k,
         "N": N,
         #"max_segsize": "default", # use no-such-key to mean default
@@ -137,8 +155,12 @@ for i in range(ITERATIONS):
     if now - last_pushed > 30:
         try:
             datastore.put(unpushed)
-            print " pushed", len(unpushed), "now at #", i
+            print " pushed (%d records)" % len(unpushed)
             unpushed[:] = []
             last_pushed = now
+            trial_elapsed = time.time() - trial_start
+            if args.max_time and trial_elapsed > args.max_time:
+                print "max_time reached, terminating"
+                sys.exit(0)
         except (exceptions.GCloudError, socket.error):
             print " push error, will retry"
