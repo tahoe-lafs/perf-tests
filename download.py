@@ -130,7 +130,7 @@ for i in range(args.max_iterations):
 
     readsize = None
     offset = None
-    if mode == "partial":
+    if mode.startswith("partial"):
         readsize = random.randint(0, filesize) # includes endpoints
         offset = random.randint(0, filesize-readsize)
 
