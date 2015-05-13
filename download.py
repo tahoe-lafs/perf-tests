@@ -165,6 +165,7 @@ for i in range(args.max_iterations):
             trial_elapsed = time.time() - trial_start
             if args.max_time and trial_elapsed > args.max_time:
                 print "max_time reached, terminating"
+                print "-- trial id %d, mode=%s, gridconfig=%d" % (trial_id, mode, grid_config_id)
                 sys.exit(0)
         except (exceptions.GCloudError, socket.error):
             print " push error, will retry"
