@@ -28,8 +28,10 @@ function reload() {
     var url = "/api/downloads?trial_id=3";
     if (trial == 4)
         url = "/api/downloads?trial_id=4";
+    if (trial == 6)
+        url = "/api/downloads?trial_id=6";
     $.getJSON(url, function(data) {
-        if (trial == 3) {
+        if (trial == 3 || trial == 6) {
             chartOptions.xAxis.title.text = "k";
             chartOptions.series = [{name: "1MB", data: []},
                                    {name: "10MB", data: []},
@@ -67,7 +69,7 @@ function reload() {
             else
                 value = p.download_time;
             var x, pushto;
-            if (trial == 3) {
+            if (trial == 3 || trial == 6) {
                 x = p.k;
                 if (p.filesize == 1*MB)
                     pushto = 0;
@@ -114,6 +116,10 @@ $(function () {
     });
     $("#trial-4").on("click", function() {
         trial = 4;
+        reload();
+    });
+    $("#trial-6").on("click", function() {
+        trial = 6;
         reload();
     });
 });
