@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, argparse
 from twisted.internet import reactor
 from twisted.python import log
 from twisted.application import service
@@ -6,7 +6,8 @@ from foolscap.api import Tub, fireEventually
 from gcloud import datastore
 
 class GetGridConfig:
-    def __init__(self):
+    def __init__(self, args):
+        self.args = args
         f = open(os.path.expanduser("~/.tahoe/private/control.furl"), "r")
         self.control_furl = f.read().strip()
         f.close()
@@ -58,22 +59,23 @@ class GetGridConfig:
                                              ).fetch()])
         ids.add(0)
         grid_config_id = max(ids)+1
+        args = self.args
         c = datastore.Entity(key)
         c.update({
             "grid_config_id": grid_config_id,
-            "num_server_instances": 3,
-            "server_instance_type": u"n1-standard-4",
-            "num_servers": 6,
-            "server_disk": u"200GB-pd-standard",
-            "server_version": u"1.10.0",
+            "num_server_instances": args.server_instances,
+            "server_instance_type": args.server_instance_type,
+            "num_servers": args.servers,
+            "server_disk": args.server_disk,
+            "server_version": args.server_version,
             "server_latencies": times,
             "avg_server_latency": sum(times) / len(times),
             "max_server_latency": max(times),
-            "client_instance_type": u"n1-standard-1",
-            "client_version": u"1.10.0",
+            "client_instance_type": args.client_instance_type,
             })
         datastore.put([c])
-        print "configid:", grid_config_id
+        print "created config", c
+        print "-- configid:", grid_config_id
 
     def tearDown(self, res):
         d = self.base_service.stopService()
@@ -82,5 +84,14 @@ class GetGridConfig:
 
 
 if __name__ == '__main__':
-    ggc = GetGridConfig()
+    parser = argparse.ArgumentParser(description="record new grid config")
+    parser.add_argument("--notes")
+    parser.add_argument("--server-instances", type=int, default=3)
+    parser.add_argument("--server-instance-type", type=unicode, default=u"n1-standard-1")
+    parser.add_argument("--server-disk", type=unicode, default=u"2GB-pd-standard")
+    parser.add_argument("--servers", type=int, default=6)
+    parser.add_argument("--server-version", type=unicode, default=u"1.10.0")
+    parser.add_argument("--client-instance-type", type=unicode, default=u"n1-standard-1")
+    args = parser.parse_args()
+    ggc = GetGridConfig(args)
     ggc.run()
