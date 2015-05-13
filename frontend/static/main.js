@@ -23,6 +23,7 @@ var chartOptions = {
 
 var mode = "time";
 var trial = 3;
+const k6_trials = [3,6,7,8];
 
 function reload() {
     var url = "/api/downloads?trial_id=3";
@@ -31,7 +32,7 @@ function reload() {
     if (trial == 6)
         url = "/api/downloads?trial_id=6";
     $.getJSON(url, function(data) {
-        if (trial == 3 || trial == 6) {
+        if (k6_trials.indexOf(trial) != -1) {
             chartOptions.xAxis.title.text = "k";
             chartOptions.series = [{name: "1MB", data: []},
                                    {name: "10MB", data: []},
@@ -69,7 +70,7 @@ function reload() {
             else
                 value = p.download_time;
             var x, pushto;
-            if (trial == 3 || trial == 6) {
+            if (k6_trials.indexOf(trial) != -1) {
                 x = p.k;
                 if (p.filesize == 1*MB)
                     pushto = 0;
@@ -110,16 +111,9 @@ $(function () {
         reload();
     });
 
-    $("#trial-3").on("click", function() {
-        trial = 3;
-        reload();
-    });
-    $("#trial-4").on("click", function() {
-        trial = 4;
-        reload();
-    });
-    $("#trial-6").on("click", function() {
-        trial = 6;
-        reload();
-    });
+    $("#trial-3").on("click", function() { trial = 3; reload(); });
+    $("#trial-4").on("click", function() { trial = 4; reload(); });
+    $("#trial-6").on("click", function() { trial = 6; reload(); });
+    $("#trial-7").on("click", function() { trial = 7; reload(); });
+    $("#trial-8").on("click", function() { trial = 8; reload(); });
 });
