@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-import os, sys, re, random, time, requests, subprocess
+import os, sys, re, random, time, requests, subprocess, socket
 from gcloud import datastore, exceptions
 from rewrite_config import restart_node, wait_for_connections
 
@@ -86,6 +86,7 @@ dt.update({"trial_id": trial_id,
            "client_tahoe_git_hash": tahoe_git_hash,
            })
 datastore.put([dt])
+print "Starting trial id", trial_id
 
 key = datastore.Key("DownloadPerf")
 
@@ -116,6 +117,7 @@ for i in range(ITERATIONS):
     start = time.time()
     fetch(cap, offset=offset, readsize=readsize, discard=True)
     download_time = time.time() - start
+    print "download", SIZES[size], k, readsize, download_time
     c = datastore.Entity(key)
     c.update({
         "grid_config_id": grid_config_id,
@@ -138,6 +140,5 @@ for i in range(ITERATIONS):
             print " pushed", len(unpushed), "now at #", i
             unpushed[:] = []
             last_pushed = now
-        except exceptions.GCloudError:
+        except (exceptions.GCloudError, socket.error):
             print " push error, will retry"
-    print "download", SIZES[size], k, readsize, download_time
