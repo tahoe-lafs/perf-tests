@@ -63,6 +63,7 @@ class GetGridConfig:
         c = datastore.Entity(key)
         c.update({
             "grid_config_id": grid_config_id,
+            "notes": args.notes,
             "num_server_instances": args.server_instances,
             "server_instance_type": args.server_instance_type,
             "num_servers": args.servers,
