@@ -21,14 +21,29 @@ var chartOptions = {
     series: [{}]
     };
 
-var mode = "time";
-var trial = 3;
-const k6_trials = [3,6,7,8];
+var qs = (function(a) {
+    if (a == "") return {};
+    var b = {};
+    for (var i = 0; i < a.length; ++i)
+    {
+        var p=a[i].split('=', 2);
+        if (p.length == 1)
+            b[p[0]] = "";
+        else
+            b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+    }
+    return b;
+})(window.location.search.substr(1).split('&'));
+
+var mode = qs["mode"] || "time";
+var trial = Number(qs["trial"] || 3);
+const partial_trials = [4];
 
 function reload() {
+    console.log("loading trial="+trial+" mode="+mode);
     var url = "/api/downloads?trial_id=" + trial;
     $.getJSON(url, function(data) {
-        if (k6_trials.indexOf(trial) != -1) {
+        if (partial_trials.indexOf(trial) == -1) {
             chartOptions.xAxis.title.text = "k";
             chartOptions.series = [{name: "1MB", data: []},
                                    {name: "10MB", data: []},
@@ -66,7 +81,7 @@ function reload() {
             else
                 value = p.download_time;
             var x, pushto;
-            if (k6_trials.indexOf(trial) != -1) {
+            if (partial_trials.indexOf(trial) == -1) {
                 x = p.k;
                 if (p.filesize == 1*MB)
                     pushto = 0;
