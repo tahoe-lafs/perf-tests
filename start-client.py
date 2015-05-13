@@ -44,3 +44,8 @@ def wait_for_connections():
 wait_for_connections()
 
 #call([TAHOE, "create-alias", "perf"])
+
+# for each trial:
+#  add_grid_config.py (optional, for new server config or client instance type)
+#    that yields a grid_config_id
+#  download.py --max-time 1200 --notes .. -g GRID_CONFIG_ID partial-100MB

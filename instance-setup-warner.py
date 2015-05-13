@@ -12,8 +12,8 @@ def log(s):
     print s
     sys.stdout.flush()
 
-def calls(s):
-    return call(s.split())
+def calls(s, cwd=None):
+    return call(s.split(), cwd=None)
 
 if exists("instance-setup-warner.stamp"):
     log("instance-setup-warner.stamp exists, exiting")
@@ -48,6 +48,7 @@ log("")
 from rewrite_config import reconfig
 
 introducer_furl = get_metadata("introducer-furl", "project")
+perf_rootcap = get_metadata("perf-rootcap", "project")
 
 for nodename in get_metadata("tahoeperf-nodes").split(","):
     if nodename.startswith("storage"):
@@ -61,13 +62,25 @@ for nodename in get_metadata("tahoeperf-nodes").split(","):
         log("started %s" % nodedir)
 
     if nodename == "client":
-        pass
-        ## TAHOE = expanduser("~/bin/tahoe")
-        ## if not exists(expanduser("~/.tahoe")):
-        ##     log("creating %s" % nodename)
-        ##     call([TAHOE, "create-client", "-n", nodename, "-i", introducer_furl])
-        ## call([TAHOE, "start"])
-        ## log("started %s" % nodename)
+        # fetch tahoe tarball, unpack, setup.py build
+        if not exists("allmydata-tahoe-1.10.0"):
+            calls("wget https://tahoe-lafs.org/source/tahoe-lafs/releases/allmydata-tahoe-1.10.0.zip")
+            calls("unzip allmydata-tahoe-1.10.0.zip")
+            calls("python setup.py build",
+                  cwd=expanduser("allmydata-tahoe-1.10.0"))
+            if not exists(expanduser("~/bin/tahoe")):
+                os.symlink(expanduser("~/allmydata-tahoe-1.10.0/bin/tahoe"),
+                           expanduser("~/bin/tahoe"))
+                TAHOE = expanduser("~/bin/tahoe")
+        if not exists(expanduser("~/.tahoe")):
+            # create client
+            log("creating/starting %s" % nodename)
+            call([TAHOE, "create-client", "-n", nodename, "-i",introducer_furl])
+            # start node
+            call([TAHOE, "start"])
+            # configure perf: alias
+            call([TAHOE, "add-alias", "perf", perf_rootcap])
+            log("started %s" % nodename)
         ## log("running start-client.py")
         ## call([sys.executable, expanduser("~/perf-tests/./start-client.py")])
 
