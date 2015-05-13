@@ -69,6 +69,10 @@ function reload() {
     var url = "/api/downloads?trial_id=" + trial;
     var seriesfunc;
     $.getJSON(url, function(data) {
+        $("#client_tahoe_version").text(data.trial_data.client_tahoe_version);
+        $("#perf_test_git_hash").text(data.trial_data.perf_test_git_hash);
+        $("#notes").text(data.trial_data.notes);
+
         if (partial_old_trials.indexOf(trial) != -1) {
             chartOptions.xAxis.title.text = "read size";
             chartOptions.series = [{name: "1MB k=1", data: []},
