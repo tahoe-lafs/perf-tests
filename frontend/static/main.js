@@ -39,7 +39,7 @@ const MB = 1000*1000;
 var mode = qs["mode"] || "time";
 var trial = Number(qs["trial"] || 3);
 const partial_old_trials = [4];
-const partial_100MB_trials = [11];
+const partial_100MB_trials = [11,12,13];
 
 var series_functions = {
     partial_old: function(p) {
@@ -115,13 +115,18 @@ function reload() {
             else
                 value = p.download_time;
             var x;
-            if (partial_old_trials.indexOf(trial) != -1 ||
-                partial_100MB_trials.indexOf(trial) != -1) {
+            if (partial_old_trials.indexOf(trial) != -1) {
                 x = p.readsize;
                 chartOptions.xAxis.min = 0;
+                chartOptions.xAxis.max = 10*MB;
+            } else if (partial_100MB_trials.indexOf(trial) != -1) {
+                x = p.readsize;
+                chartOptions.xAxis.min = 0;
+                chartOptions.xAxis.max = 100*MB;
             } else {
                 x = p.k;
                 delete chartOptions.xAxis.min;
+                delete chartOptions.xAxis.max;
             }
             s[seriesfunc(p)].data.push([x, value]);
         });
