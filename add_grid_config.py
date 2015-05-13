@@ -86,7 +86,7 @@ class GetGridConfig:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="record new grid config")
-    parser.add_argument("--notes")
+    parser.add_argument("--notes", type=unicode)
     parser.add_argument("--server-instances", type=int, default=3)
     parser.add_argument("--server-instance-type", type=unicode, default=u"n1-standard-1")
     parser.add_argument("--server-disk", type=unicode, default=u"2GB-pd-standard")
