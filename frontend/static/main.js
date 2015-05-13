@@ -26,11 +26,7 @@ var trial = 3;
 const k6_trials = [3,6,7,8];
 
 function reload() {
-    var url = "/api/downloads?trial_id=3";
-    if (trial == 4)
-        url = "/api/downloads?trial_id=4";
-    if (trial == 6)
-        url = "/api/downloads?trial_id=6";
+    var url = "/api/downloads?trial_id=" + trial;
     $.getJSON(url, function(data) {
         if (k6_trials.indexOf(trial) != -1) {
             chartOptions.xAxis.title.text = "k";
