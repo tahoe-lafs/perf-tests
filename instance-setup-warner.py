@@ -6,7 +6,7 @@
 import sys
 from os.path import exists, expanduser, join
 from os import symlink
-from subprocess import call
+from subprocess import check_call
 import requests
 
 def log(s):
@@ -14,7 +14,7 @@ def log(s):
     sys.stdout.flush()
 
 def calls(s, cwd=None):
-    return call(s.split(), cwd=None)
+    return check_call(s.split(), cwd=None)
 
 if exists("instance-setup-warner.stamp"):
     log("instance-setup-warner.stamp exists, exiting")
@@ -41,7 +41,7 @@ if False:
     # unpack +version takes 16s
     calls("tar xf tahoe-1.10.0-built.tar.bz2")
     calls("./tahoe-1.10.0/bin/tahoe --version")
-    call(["ln", "-s", expanduser("~/tahoe-1.10.0/bin/tahoe"), expanduser("~/bin/tahoe")])
+    check_call(["ln", "-s", expanduser("~/tahoe-1.10.0/bin/tahoe"), expanduser("~/bin/tahoe")])
     log("--")
     log("~/bin/tahoe now ready")
 log("")
@@ -56,10 +56,10 @@ for nodename in get_metadata("tahoeperf-nodes").split(","):
         nodedir = "%s/%s" % (nodename, nodename)
         if not exists(nodedir):
             log("creating %s" % nodedir)
-            call([TAHOE, "create-node", "-n", nodename, "-i", introducer_furl,
+            check_call([TAHOE, "create-node", "-n", nodename, "-i", introducer_furl,
                   "-p", "none", nodedir])
             reconfig(join(nodedir, "tahoe.cfg"), "reserved_space", "")
-        call([TAHOE, "start", nodedir])
+        check_call([TAHOE, "start", nodedir])
         log("started %s" % nodedir)
 
     if nodename == "client":
@@ -76,13 +76,13 @@ for nodename in get_metadata("tahoeperf-nodes").split(","):
         if not exists(expanduser("~/.tahoe")):
             # create client
             log("creating/starting %s" % nodename)
-            call([TAHOE, "create-client", "-n", nodename, "-i",introducer_furl])
+            check_call([TAHOE, "create-client", "-n", nodename, "-i",introducer_furl])
             # start node
-            call([TAHOE, "start"])
+            check_call([TAHOE, "start"])
             # configure perf: alias
-            call([TAHOE, "add-alias", "perf", perf_rootcap])
+            check_call([TAHOE, "add-alias", "perf", perf_rootcap])
             log("started %s" % nodename)
         ## log("running start-client.py")
-        ## call([sys.executable, expanduser("~/perf-tests/./start-client.py")])
+        ## check_call([sys.executable, expanduser("~/perf-tests/./start-client.py")])
 
 log("instance-setup.py complete")
