@@ -62,7 +62,7 @@ for nodename in get_metadata("tahoeperf-nodes").split(","):
         check_call([TAHOE, "start", nodedir])
         log("started %s" % nodedir)
 
-    if nodename == "client":
+    if nodename == "client" and False:
         # fetch tahoe tarball, unpack, setup.py build
         if not exists("allmydata-tahoe-1.10.0"):
             calls("wget https://tahoe-lafs.org/source/tahoe-lafs/releases/allmydata-tahoe-1.10.0.zip")
