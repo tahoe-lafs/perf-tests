@@ -4,7 +4,7 @@
 # available, but not necessarily anything else.
 
 import sys
-from os.path import exists, expanduser, join
+from os.path import exists, expanduser, join, symlink
 from subprocess import call
 import requests
 
@@ -69,8 +69,8 @@ for nodename in get_metadata("tahoeperf-nodes").split(","):
             calls("python setup.py build",
                   cwd=expanduser("allmydata-tahoe-1.10.0"))
             if not exists(expanduser("~/bin/tahoe")):
-                os.symlink(expanduser("~/allmydata-tahoe-1.10.0/bin/tahoe"),
-                           expanduser("~/bin/tahoe"))
+                symlink(expanduser("~/allmydata-tahoe-1.10.0/bin/tahoe"),
+                        expanduser("~/bin/tahoe"))
                 TAHOE = expanduser("~/bin/tahoe")
         if not exists(expanduser("~/.tahoe")):
             # create client
