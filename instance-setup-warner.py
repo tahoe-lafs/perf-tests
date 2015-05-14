@@ -4,7 +4,8 @@
 # available, but not necessarily anything else.
 
 import sys
-from os.path import exists, expanduser, join, symlink
+from os.path import exists, expanduser, join
+from os import symlink
 from subprocess import call
 import requests
 
