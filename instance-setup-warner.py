@@ -16,6 +16,8 @@ def log(s):
 def calls(s, cwd=None):
     return check_call(s.split(), cwd=None)
 
+calls("printenv")
+
 if exists("instance-setup-warner.stamp"):
     log("instance-setup-warner.stamp exists, exiting")
     sys.exit(0)
