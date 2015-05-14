@@ -68,7 +68,7 @@ for nodename in get_metadata("tahoeperf-nodes").split(","):
             calls("wget https://tahoe-lafs.org/source/tahoe-lafs/releases/allmydata-tahoe-1.10.0.zip")
             calls("unzip allmydata-tahoe-1.10.0.zip")
             calls("python setup.py build",
-                  cwd=expanduser("allmydata-tahoe-1.10.0"))
+                  cwd=expanduser("~/allmydata-tahoe-1.10.0"))
             if not exists(expanduser("~/bin/tahoe")):
                 symlink(expanduser("~/allmydata-tahoe-1.10.0/bin/tahoe"),
                         expanduser("~/bin/tahoe"))
