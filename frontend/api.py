@@ -67,35 +67,60 @@ class DownloadTrialData(webapp2.RequestHandler):
         perfs = [p.to_dict()
                  for p in DownloadPerf.query(DownloadPerf.trial_id == trial_id).fetch()
                  ]
+        if trial_id in (1,2,3,5,6,7,8,9,10):
+            by = "k"
+        else:
+            by = "readsize"
         return {"trial_data": trial_data.to_dict(),
                 "perfs": perfs,
-                "rates": self.calc_rates(perfs),
+                "rates": self.calc_rates(by, perfs),
                 }
 
-    def calc_rates(self, perfs):
+    def calc_rates(self, by, perfs):
         series = defaultdict(list)
         rates = []
         for p in perfs:
-            s = (p["k"], p["filesize"])
+            if by == "readsize":
+                s = (p["k"], p["filesize"])
+            else:
+                s = p["filesize"]
             series[s].append(p)
 
-        for k in sorted(series.keys()):
-            data = series[k]
-            x_data = [p["readsize"] for p in data]
+        for key in sorted(series.keys()):
+            data = series[key]
+            x_data = [p[by] for p in data]
             max_x = max(x_data)
             y_data = [p["download_time"] for p in data]
             x = numpy.array(x_data)
             y = numpy.array(y_data)
             A = numpy.vstack([x, numpy.ones(len(x))]).T
             m,c = numpy.linalg.lstsq(A, y)[0]
-            speed = 1.0/m / 1e6 # MBps
-            rates.append({"k": k,
-                          "filesize": p["filesize"],
-                          "speed": speed,
-                          "c": c,
-                          "p0": [0,c],
-                          "p1": [max_x, m*max_x+c],
-                          })
+            if by == "readsize":
+                k,filesize = key
+                speed = 1.0/m / 1e6 # MBps
+                text = "%dMB k=%d: %.2f MBps + %.3f sec" \
+                       % (int(filesize/1e6), k, speed, c)
+                rates.append({"k": k,
+                              "filesize": filesize,
+                              "speed": speed,
+                              "c": c,
+                              "p0": [0,c],
+                              "p1": [max_x, m*max_x+c],
+                              "text": text,
+                              })
+            elif by == "k":
+                filesize = key
+                slope = m # sec/k
+                text = "%dMB: %.02f sec/k + %.3f sec" \
+                       % (int(filesize/1e6), slope, c)
+                rates.append({"filesize": filesize,
+                              "slope": slope,
+                              "c": c,
+                              "p0": [0,c],
+                              "p1": [max_x, m*max_x+c],
+                              "text": text,
+                              })
+
             #print "time = %.2f MBps + %.3f s" % (speed, c)
         return rates
 

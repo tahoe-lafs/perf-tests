@@ -102,12 +102,19 @@ function reload() {
                                   ];
             seriesfunc = series_functions.by_filesize;
         }
+        $("#rates").empty();
         if (mode == "speed") {
             chartOptions.title = "Download Speed";
             chartOptions.yAxis.title.text = "bytes per second";
         } else {
             chartOptions.title = "Download Time";
             chartOptions.yAxis.title.text = "seconds";
+            data.rates.forEach(function(r) {
+                chartOptions.series.push({type: "line",
+                                          name: "(trend)",
+                                          data:[r.p0, r.p1]});
+                $("#rates").append($("<li>"+r.text+"</li>"));
+            });
         }
 
         var s = chartOptions.series;
@@ -122,7 +129,7 @@ function reload() {
             if (partial_old_trials.indexOf(trial) != -1) {
                 x = p.readsize;
                 chartOptions.xAxis.min = 0;
-                chartOptions.xAxis.max = 10*MB;
+                delete chartOptions.xAxis.max;
             } else if (partial_100MB_trials.indexOf(trial) != -1) {
                 x = p.readsize;
                 chartOptions.xAxis.min = 0;
