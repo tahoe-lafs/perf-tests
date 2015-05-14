@@ -1,4 +1,5 @@
-import webapp2
+import webapp2, numpy
+from collections import defaultdict
 from google.appengine.ext import ndb
 
 class GridConfig(ndb.Model):
@@ -67,7 +68,36 @@ class DownloadTrialData(webapp2.RequestHandler):
                  for p in DownloadPerf.query(DownloadPerf.trial_id == trial_id).fetch()
                  ]
         return {"trial_data": trial_data.to_dict(),
-                "perfs": perfs}
+                "perfs": perfs,
+                "rates": self.calc_rates(perfs),
+                }
+
+    def calc_rates(self, perfs):
+        series = defaultdict(list)
+        rates = []
+        for p in perfs:
+            s = (p["k"], p["filesize"])
+            series[s].append(p)
+
+        for k in sorted(series.keys()):
+            data = series[k]
+            x_data = [p["readsize"] for p in data]
+            max_x = max(x_data)
+            y_data = [p["download_time"] for p in data]
+            x = numpy.array(x_data)
+            y = numpy.array(y_data)
+            A = numpy.vstack([x, numpy.ones(len(x))]).T
+            m,c = numpy.linalg.lstsq(A, y)[0]
+            speed = 1.0/m / 1e6 # MBps
+            rates.append({"k": k,
+                          "filesize": p["filesize"],
+                          "speed": speed,
+                          "c": c,
+                          "p0": [0,c],
+                          "p1": [max_x, m*max_x+c],
+                          })
+            #print "time = %.2f MBps + %.3f s" % (speed, c)
+        return rates
 
     def get(self):
         trial_id = self.request.get("trial_id", None)
