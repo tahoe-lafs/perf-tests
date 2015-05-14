@@ -39,7 +39,7 @@ const MB = 1000*1000;
 var mode = qs["mode"] || "time";
 var trial = Number(qs["trial"] || 3);
 const partial_old_trials = [4];
-const partial_100MB_trials = [11,12,13];
+const partial_100MB_trials = [11,12,13,14,15];
 
 var series_functions = {
     partial_old: function(p) {
