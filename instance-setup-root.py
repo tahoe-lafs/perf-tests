@@ -44,6 +44,9 @@ if first_time and get_metadata("install-tahoe"):
 if first_time and "client" in get_metadata("tahoeperf-nodes"):
     calls("apt-get install -y python-pip python-dev libssl-dev libffi-dev unzip")
     calls("pip install -U pip")
+    calls("pip install oauth2client==1.4.7")
+    # 1.4.8 seems to have some sort of bug, this fails:
+    # python -c 'from gcloud import datastore; datastore.Query(kind="GridConfig").fetch()'
     calls("pip install -U virtualenv gcloud")
 
 def mount(diskname, mountpoint):
