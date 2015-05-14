@@ -29,7 +29,7 @@ def get_metadata(name, type="instance"):
     if not r.ok and r.status_code == 404:
         return None
     r.raise_for_status()
-    return r.text
+    return r.text.encode("ascii")
 
 TAHOE = "/usr/bin/tahoe"
 
