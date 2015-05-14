@@ -14,9 +14,7 @@ def log(s):
     sys.stdout.flush()
 
 def calls(s, cwd=None):
-    return check_call(s.split(), cwd=None)
-
-calls("printenv")
+    return check_call(s.split(), cwd=cwd)
 
 if exists("instance-setup-warner.stamp"):
     log("instance-setup-warner.stamp exists, exiting")
